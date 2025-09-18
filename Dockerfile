@@ -4,11 +4,10 @@ COPY . /usr/src/confluent-kafka-python
 
 ARG LIBRDKAFKA_VERSION
 RUN test -n "$LIBRDKAFKA_VERSION"
-ENV CONFLUENT_KAFKA_VERSION="${LIBRDKAFKA_VERSION//v}"
 
 ENV BUILD_DEPS="git make gcc g++ pkgconfig python3-dev"
 
-ENV RUN_DEPS="bash librdkafka-dev>${CONFLUENT_KAFKA_VERSION} libcurl cyrus-sasl-gssapiv2 ca-certificates libsasl heimdal-libs krb5 zstd-libs zstd-static yajl python3 py3-pip pipx"
+ENV RUN_DEPS="bash librdkafka-dev>${LIBRDKAFKA_VERSION} libcurl cyrus-sasl-gssapiv2 ca-certificates libsasl heimdal-libs krb5 zstd-libs zstd-static yajl python3 py3-pip pipx"
 
 RUN \
     apk update && \
@@ -17,7 +16,7 @@ RUN \
 
 RUN \
     echo Installing confluent-kafka-python && \
-    python3 -m pip install -I confluent_kafka==${CONFLUENT_KAFKA_VERSION} --break-system-packages
+    python3 -m pip install -I confluent_kafka==${LIBRDKAFKA_VERSION} --break-system-packages
 
 RUN \
     apk del .dev_pkgs
