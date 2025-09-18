@@ -19,9 +19,9 @@ on:
         default: 'quay.io/fvila/pythonkafkaclient'
         required: true
       ref:
-        description: 'Ref (branch/tag) to build'
+        description: 'python confluent_kafka version to install'
         required: true
-        default: 'main'
+        default: 'latest'
 jobs:
   build:
     runs-on: ubuntu-latest
