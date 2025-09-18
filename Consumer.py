@@ -5,7 +5,7 @@ import logging
 
 def print_message(msg):
     sys.stdout.write("Received: {\"name\":\"record_data\",\"topic\":\"%s\",\"partition\":%d,\"key\":\"%s\",\"payload\":\"%s\",\"offset\":%d}\n" %
-        (msg.topic(), msg.partition(), str(msg.key()), msg.value().decode("utf-8"), msg.offset()))
+        (msg.topic(), msg.partition(), str(msg.key().decode("utf-8")), msg.value().decode("utf-8"), msg.offset()))
 
 def main(args):
     topic = args.topic
