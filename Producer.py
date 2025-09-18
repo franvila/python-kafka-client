@@ -3,13 +3,6 @@ import argparse
 import sys
 
 def main(args):
-    # if len(sys.argv) != 3:
-    #     sys.stderr.write('Usage: %s <message> <bootstrap-brokers> <topic>\n' % sys.argv[0])
-    #     sys.exit(1)
-    #
-    # # message = sys.argv[1]
-    # broker = sys.argv[1]
-    # topic = sys.argv[2]
     broker = args.bootstrap_servers
     topic = args.topic
     key = args.key
@@ -28,16 +21,14 @@ def main(args):
         if err:
             sys.stderr.write('%% Message failed delivery: %s\n' % err)
         else:
-            if key != "":
-                msg.set_key(key)
-            sys.stderr.write('%% Message delivered to %s [%d] @ %d\n' %
+            sys.stdout.write('%% Message delivered to %s [%d] @ %d\n' %
                              (msg.topic(), msg.partition(), msg.offset()))
 
     # Read lines from stdin, produce each line to Kafka
     for line in sys.stdin:
         try:
             # Produce line (without newline)
-            p.produce(topic, line.rstrip(), callback=delivery_callback)
+            p.produce(topic, key=key, value=line.rstrip(), callback=delivery_callback)
 
         except BufferError:
             sys.stderr.write('%% Local producer queue is full (%d messages awaiting delivery): try again\n' %
@@ -50,7 +41,7 @@ def main(args):
         p.poll(0)
 
     # Wait until all messages have been delivered
-    sys.stderr.write('%% Waiting for %d deliveries\n' % len(p))
+    sys.stdout.write('%% Waiting for %d deliveries\n' % len(p))
     p.flush()
 
 if __name__ == '__main__':
@@ -59,7 +50,7 @@ if __name__ == '__main__':
                         help="Bootstrap broker(s) (host[:port])")
     parser.add_argument('-t', dest="topic", required=True,
                         help="Topic name")
-    parser.add_argument('-k', dest="key", default="",
+    parser.add_argument('-k', dest="key", default=None,
                         help="Key")
 
     main(parser.parse_args())
