@@ -10,10 +10,6 @@ name: Python Kafka Client Container
 on:
   workflow_dispatch:
     inputs:
-      repository:
-        description: 'Repository containing confluent kafka'
-        default: 'confluentinc/confluent-kafka-python'
-        required: true
       registry-destination:
         description: 'The release version, e.g. quay.io/<my org>/kaf'
         default: 'quay.io/fvila/pythonkafkaclient'
