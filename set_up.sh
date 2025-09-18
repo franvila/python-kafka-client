@@ -11,3 +11,4 @@ echo "Using librdkafka version ${LIBRDKAFKA_VERSION}"
 ${DOCKER_CMD} build -t kroxylicious/pythonkafkaclient --build-arg LIBRDKAFKA_VERSION=$LIBRDKAFKA_VERSION .
 
 ${DOCKER_CMD} push kroxylicious/pythonkafkaclient:latest quay.io/fvila/pythonkafkaclient:latest
+${DOCKER_CMD} push kroxylicious/pythonkafkaclient:latest quay.io/fvila/pythonkafkaclient:${LIBRDKAFKA_VERSION}
