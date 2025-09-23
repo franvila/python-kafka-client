@@ -2,7 +2,7 @@ FROM alpine:edge
 
 COPY . /usr/src/confluent-kafka-python
 
-ARG LIBRDKAFKA_VERSION="2.11.0"
+ARG LIBRDKAFKA_VERSION
 
 ENV BUILD_DEPS="git make gcc g++ pkgconfig python3-dev"
 
