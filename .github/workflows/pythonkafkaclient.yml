@@ -31,7 +31,7 @@ jobs:
         id: build_configuration
         run: |
           REPO_RELEASE=${{ steps.confluentKafkaPython.outputs.release }}
-          RELEASE=${REPO_RELEASE//v}
+          RELEASE=$(echo ${REPO_RELEASE//v})
           echo "LIBRDKAFKA_VERSION=${RELEASE}" >> "${GITHUB_ENV}"
       - name: 'Check out repository'
         uses: actions/checkout@v5
