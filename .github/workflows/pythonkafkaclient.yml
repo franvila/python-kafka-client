@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
     inputs:
       registry-destination:
-        description: 'The release version, e.g. quay.io/<my org>/kaf'
+        description: 'The registry destination, e.g. quay.io/<my org>/pythonkafkaclient'
         default: 'quay.io/fvila/pythonkafkaclient'
         required: true
       ref:
@@ -23,6 +23,15 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ vars.REGISTRY_SERVER != '' && vars.REGISTRY_USERNAME != '' }}
     steps:
+      - id: confluentKafkaPython
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
+        with:
+          repository: confluentinc/confluent-kafka-python
+      - name: Determine Build Configuration
+        id: build_configuration
+        run: |
+          RELEASE=${{ steps.confluentKafkaPython.outputs.release }}
+          echo "LIBRDKAFKA_VERSION=${RELEASE//v}" >> "${GITHUB_ENV}"
       - name: 'Check out repository'
         uses: actions/checkout@v5
         with:
@@ -42,9 +51,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: LIBRDKAFKA_VERSION=${{ github.event.inputs.ref }}
+          build-args: LIBRDKAFKA_VERSION=${LIBRDKAFKA_VERSION}
           platforms: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
           push: true
-          tags: ${{ github.event.inputs.registry-destination }}:${{ github.event.inputs.ref }}
+          tags: ${{ github.event.inputs.registry-destination }}:${LIBRDKAFKA_VERSION}
           cache-from: type=gha
           cache-to: type=gha,mode=max,compression=zstd
