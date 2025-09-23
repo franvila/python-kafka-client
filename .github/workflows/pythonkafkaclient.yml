@@ -6,18 +6,16 @@
 # - REGISTRY_TOKEN - the access token that corresponds to `REGISTRY_USERNAME`
 #
 
-name: Python Kafka Client Container 
+name: Python Kafka Client Container
 on:
   workflow_dispatch:
     inputs:
-      registry-destination:
-        description: 'The registry destination, e.g. quay.io/<my org>/pythonkafkaclient'
-        default: 'quay.io/fvila/pythonkafkaclient'
-        required: true
       ref:
         description: 'python confluent_kafka version to install'
         required: true
         default: 'latest'
+env:
+  REGISTRY_DESTINATION: "quay.io/fvila/pythonkafkaclient"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,8 +25,8 @@ jobs:
         uses: pozetroninc/github-action-get-latest-release@v0.8.0
         with:
           repository: confluentinc/confluent-kafka-python
-      - name: Determine Build Configuration
-        id: build_configuration
+      - name: Determine Version
+        id: confluentKafkaPythonVersion
         run: |
           REPO_RELEASE=${{ steps.confluentKafkaPython.outputs.release }}
           RELEASE=$(echo ${REPO_RELEASE//v})
@@ -56,6 +54,6 @@ jobs:
           build-args: LIBRDKAFKA_VERSION=${{env.LIBRDKAFKA_VERSION}}
           platforms: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
           push: true
-          tags: ${{ github.event.inputs.registry-destination }}:${{env.LIBRDKAFKA_VERSION}}
+          tags: ${{ env.REGISTRY_DESTINATION }}:${{env.LIBRDKAFKA_VERSION}}
           cache-from: type=gha
           cache-to: type=gha,mode=max,compression=zstd
