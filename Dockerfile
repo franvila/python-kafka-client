@@ -2,12 +2,11 @@ FROM alpine:edge
 
 COPY . /usr/src/confluent-kafka-python
 
-ARG LIBRDKAFKA_VERSION
-RUN test -n "$LIBRDKAFKA_VERSION"
+ARG LIBRDKAFKA_VERSION="2.11.1"
 
 ENV BUILD_DEPS="git make gcc g++ pkgconfig python3-dev"
 
-ENV RUN_DEPS="bash librdkafka-dev>${LIBRDKAFKA_VERSION} libcurl cyrus-sasl-gssapiv2 ca-certificates libsasl heimdal-libs krb5 zstd-libs zstd-static yajl python3 py3-pip pipx"
+ENV RUN_DEPS="bash librdkafka-dev>${LIBRDKAFKA_VERSION} libcurl cyrus-sasl-gssapiv2 ca-certificates libsasl heimdal-libs krb5 zstd-libs zstd-static python3 py3-pip"
 
 RUN \
     apk update && \
