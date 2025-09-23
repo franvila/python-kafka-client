@@ -23,8 +23,8 @@
         "ARG LIBRDKAFKA_VERSION=(?<currentValue>\\d+\\.\\d+.\\d+)"
       ],
       "depNameTemplate": "confluentinc/confluent-kafka-python",
-      "extractVersionTemplate": "^v(?<version>.*)?$",
-      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)?$",
+      "extractVersionTemplate": "^v?(?<version>.*)$",
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
       "datasourceTemplate": "github-releases"
     }
   ]
