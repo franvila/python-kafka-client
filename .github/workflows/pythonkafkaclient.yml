@@ -44,7 +44,7 @@ jobs:
         run: |
           REPO_RELEASE=${{ steps.pythonKafkaClientRelease.outputs.release }}
           if [[ $REPO_RELEASE == '' ]] then
-            REPO_RELEASE='0.1.0'
+            REPO_RELEASE='0.0.0'
           fi
           echo "RELEASE_VERSION=${REPO_RELEASE}" >> $GITHUB_ENV
       - name: 'Check out repository'
