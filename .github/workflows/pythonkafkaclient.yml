@@ -8,52 +8,62 @@
 
 name: Python Kafka Client Container
 on:
+  push:
+    tags: [ '*.*.*' ]
   workflow_dispatch:
-    inputs:
-      ref:
-        description: 'python confluent_kafka version to install'
-        required: true
-        default: 'latest'
-env:
-  REGISTRY_DESTINATION: "quay.io/fvila/pythonkafkaclient"
 jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ vars.REGISTRY_SERVER != '' && vars.REGISTRY_USERNAME != '' }}
     steps:
-      - id: confluentKafkaPython
+      - name: 'Get latest release version of confluent kafka python package'
+        id: confluentKafkaPython
         uses: pozetroninc/github-action-get-latest-release@v0.8.0
         with:
           repository: confluentinc/confluent-kafka-python
-      - name: Determine Version
+      - name: 'Get latest release version of this repository'
+        id: pythonKafkaClientRelease
+        uses: pozetroninc/github-action-get-latest-release@v0.8.0
+        with:
+          repository: kroxylicious/python-kafka-client
+      - name: 'Determine Version'
         id: confluentKafkaPythonVersion
         run: |
           REPO_RELEASE=${{ steps.confluentKafkaPython.outputs.release }}
           RELEASE=$(echo ${REPO_RELEASE//v})
           echo "$RELEASE"
           echo "LIBRDKAFKA_VERSION=${RELEASE}" >> $GITHUB_ENV
+      - name: 'Set release version from new tag'
+        if: ${{ $GITHUB_REF =~ 'tag' }}
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: 'Set release version from latest tag'
+        if: ${{ ! $GITHUB_REF =~ 'tag' }}
+        run: |
+          REPO_RELEASE=${{ steps.pythonKafkaClientRelease.outputs.release }}
+          echo "RELEASE_VERSION=${REPO_RELEASE}" >> $GITHUB_ENV
       - name: 'Check out repository'
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Set up QEMU
+      - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
-      - name: Login to container registry
+      - name: 'Login to container registry'
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.REGISTRY_SERVER }}
           username: ${{ vars.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
-      - name: Build and push python kafka client container image
+      - name: 'Build and push python kafka client container image'
         uses: docker/build-push-action@v6
         with:
           context: .
           build-args: LIBRDKAFKA_VERSION=${{env.LIBRDKAFKA_VERSION}}
           platforms: linux/amd64,linux/arm64,linux/s390x,linux/ppc64le
           push: true
-          tags: ${{ env.REGISTRY_DESTINATION }}:${{env.LIBRDKAFKA_VERSION}}
+          tags: ${{ vars.REGISTRY_DESTINATION }}:${{ env.RELEASE_VERSION }}-${{ env.LIBRDKAFKA_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max,compression=zstd
