@@ -34,12 +34,12 @@ jobs:
           echo "$RELEASE"
           echo "LIBRDKAFKA_VERSION=${RELEASE}" >> $GITHUB_ENV
       - name: 'Set release version from new tag'
-        if: ${{ github.ref =~ 'tag' }}
+        if: ${{ contains(github.ref, 'tag') }}
         run: |
           REPO_RELEASE=${{ github.ref_name }}
           echo "RELEASE_VERSION=${REPO_RELEASE}" >> $GITHUB_ENV
       - name: 'Set release version from latest tag'
-        if: ${{ ! github.ref =~ 'tag' }}
+        if: ${{ ! contains(github.ref, 'tag') }}
         run: |
           REPO_RELEASE=${{ steps.pythonKafkaClientRelease.outputs.release }}
           echo "RELEASE_VERSION=${REPO_RELEASE}" >> $GITHUB_ENV
