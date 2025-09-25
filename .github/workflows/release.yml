@@ -13,24 +13,37 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v5
-      - name: 'Create tag'
-        uses: actions/github-script@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: 'Check team membership'
+        if: ${{ github.repository == 'kroxylicious/kroxylicious' }}
+        uses: tspascoal/get-user-teams-membership@v3
+        id: team-membership
         with:
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'refs/tags/${{ github.event.inputs.ref }}',
-              sha: context.sha
-            })
-      - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
-        with:
-          tag_name: '${{ github.event.inputs.ref }}'
-          release_name: 'Release ${{ github.event.inputs.ref }}'
-          draft: false
-          prerelease: false
+          username: ${{ github.actor }}
+          team: Developers
+          GITHUB_TOKEN: ${{ secrets.KROXYLICIOUS_RELEASE_TOKEN }}
+
+      - name: 'Stop workflow if user is not a Developer'
+        if: ${{ github.repository == 'kroxylicious/kroxylicious' && steps.team-membership.outputs.isTeamMember == 'false' }}
+        run: |
+          echo "${{ github.actor }} is not a member of https://github.com/orgs/kroxylicious/teams/Developers)"
+          exit -1
+
+      - name: 'Configure Git username/email'
+        run: |
+          git config --global user.name "${GITHUB_ACTOR}"
+          git config --global user.email "${GITHUB_ACTOR_ID}+${GITHUB_ACTOR}@users.noreply.github.com"    
+
+      - name: Create Tag
+        run: |
+            git tag -a "${{ github.event.inputs.ref }}" -m "Release ${{ github.event.inputs.ref }}"
+            git push origin "${{ github.event.inputs.ref }}"
+#      - name: Create Release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.KROXYLICIOUS_RELEASE_TOKEN }}
+#        with:
+#          tag_name: '${{ github.event.inputs.ref }}'
+#          release_name: 'Release ${{ github.event.inputs.ref }}'
+#          draft: false
+#          prerelease: false
