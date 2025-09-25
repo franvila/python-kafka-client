@@ -26,7 +26,7 @@ jobs:
         uses: pozetroninc/github-action-get-latest-release@v0.8.0
         continue-on-error: true
         with:
-          repository: kroxylicious/python-kafka-client
+          repository: fvila/python-kafka-client
       - name: 'Determine Version'
         id: confluentKafkaPythonVersion
         run: |
