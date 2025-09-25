@@ -43,13 +43,11 @@ jobs:
         if: ${{ ! contains(github.ref, 'tag') }}
         run: |
           REPO_RELEASE=${{ steps.pythonKafkaClientRelease.outputs.release }}
-          if [[ $REPO_RELEASE == '' ]] then
-            REPO_RELEASE='0.0.0'
-          fi
           echo "RELEASE_VERSION=${REPO_RELEASE}" >> $GITHUB_ENV
       - name: 'Check out repository'
         uses: actions/checkout@v5
         with:
+          ref: ${{ env.RELEASE_VERSION }}
           fetch-depth: 0
       - name: 'Set up QEMU'
         uses: docker/setup-qemu-action@v3
