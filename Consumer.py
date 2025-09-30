@@ -8,17 +8,33 @@ from confluent_kafka import Consumer, KafkaException
 import argparse
 import sys
 import logging
+import json
+import inspect
 
-def print_record(msg):
-    key = "" if msg.key() is None else str(msg.key().decode("utf-8"))
-    headers = "["
-    if msg.headers() is not None:
-        for header in msg.headers():
-            headers += "{\"" + header[0] + "\":\"" + str(header[1].decode("utf-8")) + "\"},"
-        headers = headers[:-1]
-    headers += "]"
-    sys.stdout.write("Received: {\"name\":\"record_data\",\"topic\":\"%s\",\"partition\":%d,\"key\":\"%s\",\"payload\":\"%s\",\"offset\":%d,\"headers\":%s}\n" %
-                     (msg.topic(), msg.partition(), key, msg.value().decode("utf-8"), msg.offset(), headers))
+def get_value_from_type(obj):
+    value_str = obj
+    if isinstance(obj, bytes):
+        value_str = obj.decode("utf-8")
+    if isinstance(obj, list):
+        value_str = [get_value_from_type(x) for x in obj]
+    if isinstance(obj, tuple):
+        value_str = { "Key" : str(get_value_from_type(obj[0])),
+                      "Value": str(get_value_from_type(obj[1])) }
+
+    return value_str
+
+def props(obj):
+    pr = {}
+    for name in dir(obj):
+        value = getattr(obj, name)
+        if (not (name.startswith('__') or name.startswith("set_"))
+                and not inspect.ismethod(value)):
+            pr[name] = get_value_from_type(value())
+    return pr
+
+def print_record_json(msg):
+    res = json.dumps(props(msg))
+    print("Received: " + res)
 
 def main(args):
     topic = args.topic
@@ -27,7 +43,6 @@ def main(args):
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
             'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
-
 
     # Create logger for consumer (logs will be emitted when poll() is called)
     logger = logging.getLogger('consumer')
@@ -56,7 +71,7 @@ def main(args):
             if msg.error():
                 raise KafkaException(msg.error())
             else:
-                print_record(msg)
+                print_record_json(msg)
                 # Store the offset associated with msg to a local cache.
                 # Stored offsets are committed to Kafka by a background thread every 'auto.commit.interval.ms'.
                 # Explicitly storing offsets after processing gives at-least once semantics.
@@ -81,7 +96,7 @@ if __name__ == '__main__':
                         help="Number of records expected")
     parser.add_argument('-t', dest="topic", required=True,
                         help="Topic name")
-    parser.add_argument('-g', dest="group",
+    parser.add_argument('-g', dest="group", default="test_group",
                         help="Consumer group")
 
     main(parser.parse_args())
