@@ -5,6 +5,7 @@
 #
 
 from confluent_kafka import Consumer, KafkaException
+import Config
 import argparse
 import sys
 import logging
@@ -39,10 +40,15 @@ def print_record_json(msg):
 def main(args):
     topic = args.topic
     records_expected = int(args.num_of_records)
+    vargs = vars(args)
+    vargs.update([x[0].split('=') for x in vargs.get('extra_conf', [])])
+
     # Consumer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
-    conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
+    consumer_conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
             'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
+    if args.__contains__("sasl_mechanism"):
+        consumer_conf.update(Config.sasl_conf(args))
 
     # Create logger for consumer (logs will be emitted when poll() is called)
     logger = logging.getLogger('consumer')
@@ -53,7 +59,7 @@ def main(args):
 
     # Create Consumer instance
     # Hint: try debug='fetch' to generate some log records
-    c = Consumer(conf, logger=logger)
+    c = Consumer(consumer_conf, logger=logger)
 
     def print_assignment(consumer, partitions):
         print('Assignment:', partitions)
@@ -98,5 +104,7 @@ if __name__ == '__main__':
                         help="Topic name")
     parser.add_argument('-g', dest="group", default="test_group",
                         help="Consumer group")
+    parser.add_argument('--tls', dest="enable_tls", default=False)
+    parser.add_argument('-X', nargs=1, dest='extra_conf', action='append', help='Configuration property', default=[])
 
     main(parser.parse_args())

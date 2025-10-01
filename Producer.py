@@ -5,6 +5,7 @@
 #
 
 from confluent_kafka import Producer
+import Config
 import argparse
 import sys
 
@@ -13,10 +14,14 @@ def main(args):
     topic = args.topic
     key = args.key
     headers = args.headers
+    vargs = vars(args)
+    vargs.update([x[0].split('=') for x in vargs.get('extra_conf', [])])
 
     # Producer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     producer_conf = {'bootstrap.servers': broker}
+    if args.__contains__("sasl_mechanism"):
+        producer_conf.update(Config.sasl_conf(args))
 
     # Create Producer instance
     p = Producer(**producer_conf)
@@ -60,6 +65,8 @@ if __name__ == '__main__':
     parser.add_argument('-k', dest="key", default=None,
                         help="Key")
     parser.add_argument('-H', action='append', dest="headers", type=lambda a: tuple(map(str, a.split('='))),
-                        default=[], help="Header (header1=header value)")
+                        default=[], help="Headers (header1=header value)")
+    parser.add_argument('--tls', dest="enable_tls", default=False)
+    parser.add_argument('-X', nargs=1, dest='extra_conf', action='append', help='Configuration property', default=[])
 
     main(parser.parse_args())
