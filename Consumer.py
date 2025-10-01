@@ -46,8 +46,8 @@ def main(args):
     # Consumer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     consumer_conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
-            'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
-    if args.__contains__("sasl_mechanism"):
+                     'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
+    if args.__contains__("extra_conf"):
         consumer_conf.update(Config.sasl_conf(args))
 
     # Create logger for consumer (logs will be emitted when poll() is called)
@@ -104,8 +104,6 @@ if __name__ == '__main__':
                         help="Topic name")
     parser.add_argument('-g', dest="group", default="test_group",
                         help="Consumer group")
-    parser.add_argument('--tls', action='store_true', dest="enable_tls",
-                        help="Enable TLS when sasl mechanism is configured")
     parser.add_argument('-X', nargs=1, dest='extra_conf', action='append', help='Configuration property', default=[])
 
     main(parser.parse_args())
