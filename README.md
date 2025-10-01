@@ -39,7 +39,7 @@ The different parameters that can be used are:
 -b <bootstrap_servers>        list of boostrap servers separated by comma
 -t <topic_name>               topic name
 -n <int>                      number of messages expected to receive
--g <group_name>               optional parameters to set the group name
+-g <group_name>               optional parameter to set the group name
 -X <name=value>               Extra configuration used for SASL: 
                                 * sasl_mechanism=<value> --> SASL mechanism to use for authentication. Choices=['GSSAPI', 'PLAIN', 'SCRAM-SHA-512', 'SCRAM-SHA-256']
                                 * username=<value>       --> Username
