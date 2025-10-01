@@ -16,7 +16,7 @@ Example command for deploying job:
 
 The different parameters that can be used are:
 ```
--b <bootstrap_servers>        list of boostrap servers separated by coma
+-b <bootstrap_servers>        list of boostrap servers separated by comma
 -t <topic_name>               topic name
 -k <key>                      optional parameter to set the message key
 -H <headerKey=headerValue>    optional parameter to set a header. 
@@ -36,7 +36,7 @@ kubectl run -i -n <namespace> --image=quay.io/fvila/pythonkafkaclient:0.1.0-2.11
 
 The different parameters that can be used are:
 ```
--b <bootstrap_servers>        list of boostrap servers separated by coma
+-b <bootstrap_servers>        list of boostrap servers separated by comma
 -t <topic_name>               topic name
 -n <int>                      number of messages expected to receive
 -g <group_name>               optional parameters to set the group name
