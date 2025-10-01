@@ -104,7 +104,8 @@ if __name__ == '__main__':
                         help="Topic name")
     parser.add_argument('-g', dest="group", default="test_group",
                         help="Consumer group")
-    parser.add_argument('--tls', dest="enable_tls", default=False)
+    parser.add_argument('--tls', action='store_true', dest="enable_tls",
+                        help="Enable TLS when sasl mechanism is configured")
     parser.add_argument('-X', nargs=1, dest='extra_conf', action='append', help='Configuration property', default=[])
 
     main(parser.parse_args())

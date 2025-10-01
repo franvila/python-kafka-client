@@ -66,7 +66,8 @@ if __name__ == '__main__':
                         help="Key")
     parser.add_argument('-H', action='append', dest="headers", type=lambda a: tuple(map(str, a.split('='))),
                         default=[], help="Headers (header1=header value)")
-    parser.add_argument('--tls', dest="enable_tls", default=False)
+    parser.add_argument('--tls', action='store_true', dest="enable_tls",
+                        help="Enable TLS when sasl mechanism is configured")
     parser.add_argument('-X', nargs=1, dest='extra_conf', action='append', help='Configuration property', default=[])
 
     main(parser.parse_args())
