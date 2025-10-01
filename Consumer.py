@@ -47,7 +47,7 @@ def main(args):
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     consumer_conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
                      'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
-    if args.__contains__("extra_conf"):
+    if len(args.extra_conf) != 0:
         consumer_conf.update(Config.sasl_conf(args))
 
     # Create logger for consumer (logs will be emitted when poll() is called)

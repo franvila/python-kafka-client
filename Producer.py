@@ -20,7 +20,7 @@ def main(args):
     # Producer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     producer_conf = {'bootstrap.servers': broker}
-    if args.__contains__("sasl_mechanism"):
+    if len(args.extra_conf) != 0:
         producer_conf.update(Config.sasl_conf(args))
 
     # Create Producer instance

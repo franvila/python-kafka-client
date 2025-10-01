@@ -17,13 +17,9 @@ ENV RUN_DEPS="bash librdkafka-dev>${LIBRDKAFKA_VERSION} libcurl cyrus-sasl-gssap
 RUN \
     apk update && \
     apk add --no-cache --virtual .dev_pkgs $BUILD_DEPS && \
-    apk add --no-cache $RUN_DEPS
-
-RUN \
+    apk add --no-cache $RUN_DEPS && \
     echo Installing confluent-kafka-python && \
-    python3 -m pip install -I confluent_kafka==${LIBRDKAFKA_VERSION} --break-system-packages
-
-RUN \
+    python3 -m pip install -I confluent_kafka==${LIBRDKAFKA_VERSION} --break-system-packages && \
     apk del .dev_pkgs
 
 RUN \
