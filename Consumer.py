@@ -3,9 +3,9 @@
 #
 # Licensed under the Apache Software License version 2.0, available at http://www.apache.org/licenses/LICENSE-2.0
 #
+from typing import AnyStr
 
 from confluent_kafka import Consumer, KafkaException
-import Config
 import argparse
 import sys
 import logging
@@ -40,15 +40,15 @@ def print_record_json(msg):
 def main(args):
     topic = args.topic
     records_expected = int(args.num_of_records)
-    vargs = vars(args)
-    vargs.update([x[0].split('=') for x in vargs.get('extra_conf', [])])
 
     # Consumer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     consumer_conf = {'bootstrap.servers': args.bootstrap_servers, 'group.id': args.group, 'session.timeout.ms': 6000,
                      'auto.offset.reset': 'earliest', 'enable.auto.offset.store': False}
-    if len(args.extra_conf) != 0:
-        consumer_conf.update(Config.sasl_conf(args))
+
+    vargs = vars(args)
+    extra_configuration = [x[0].split('=') for x in vargs.get('extra_conf', [])]
+    consumer_conf.update(dict(extra_configuration))
 
     # Create logger for consumer (logs will be emitted when poll() is called)
     logger = logging.getLogger('consumer')
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Consumer")
     parser.add_argument('-b', dest="bootstrap_servers", required=True,
                         help="Bootstrap broker(s) (host[:port])")
-    parser.add_argument('-n', dest="num_of_records",
+    parser.add_argument('-n', dest="num_of_records", default=0,
                         help="Number of records expected")
     parser.add_argument('-t', dest="topic", required=True,
                         help="Topic name")

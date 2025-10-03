@@ -5,7 +5,6 @@
 #
 
 from confluent_kafka import Producer
-import Config
 import argparse
 import sys
 
@@ -14,14 +13,14 @@ def main(args):
     topic = args.topic
     key = args.key
     headers = args.headers
-    vargs = vars(args)
-    vargs.update([x[0].split('=') for x in vargs.get('extra_conf', [])])
 
     # Producer configuration
     # See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md
     producer_conf = {'bootstrap.servers': broker}
-    if len(args.extra_conf) != 0:
-        producer_conf.update(Config.sasl_conf(args))
+
+    vargs = vars(args)
+    extra_configuration = [x[0].split('=') for x in vargs.get('extra_conf', [])]
+    producer_conf.update(dict(extra_configuration))
 
     # Create Producer instance
     p = Producer(**producer_conf)
